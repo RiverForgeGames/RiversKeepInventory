@@ -1,6 +1,6 @@
 name: RiversKeepInventory
 version: '1.0-SNAPSHOT'
 main: me.river.riversKeepInventory.RiversKeepInventory
-api-version: '1.21'
+api-version: '1.21.4'
 authors: [ River ]
-description: Just a test plugin while River is learning
+description: Allows customization of what items and xp should be kept or lost on death.
