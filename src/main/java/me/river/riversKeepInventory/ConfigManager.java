@@ -1,13 +1,12 @@
-package me.river.keepinventorytweaks;
+package me.river.riversKeepInventory;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 
 public class ConfigManager {
-    private final FileConfiguration config;
+    private FileConfiguration config;
 
     public ConfigManager() {
-        this.config = KeepInventoryTweaks.getInstance().getConfig();
+        reloadConfig();
     }
 
     public boolean keepHotbar() {
@@ -26,7 +25,12 @@ public class ConfigManager {
         return config.getBoolean("keep-xp", false);
     }
 
-    public void reloadConfig(Plugin plugin) {
-        plugin.reloadConfig(); // Reload the configuration file from disk
+    public void reloadConfig() {
+        if (this.config != null)
+        {
+            this.config = null;
+            RiversKeepInventory.getInstance().reloadConfig();
+        }
+        this.config = RiversKeepInventory.getInstance().getConfig(); // Reload the configuration file from disk
     }
 }

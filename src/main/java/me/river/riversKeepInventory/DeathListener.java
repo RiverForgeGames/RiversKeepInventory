@@ -1,22 +1,17 @@
-package me.river.keepinventorytweaks;
+package me.river.riversKeepInventory;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameRule;
-import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-
-import java.util.Iterator;
 
 public class DeathListener implements Listener {
     private final ConfigManager configManager;
 
-    public DeathListener(KeepInventoryTweaks plugin) {
+    public DeathListener(RiversKeepInventory plugin) {
         this.configManager = new ConfigManager();
     }
 
@@ -34,7 +29,7 @@ public class DeathListener implements Listener {
         }
 
         // Reload the config so we get the latest values
-        configManager.reloadConfig(event.getEntity().getServer().getPluginManager().getPlugin("KeepInventoryTweaks"));
+        configManager.reloadConfig();
 
         // Log current config values
         boolean keepHotbar = configManager.keepHotbar();
@@ -59,56 +54,49 @@ public class DeathListener implements Listener {
             Bukkit.getLogger().info("[KeepInventoryTweaks] XP is NOT being kept.");
         }
 
+        // Handle dropping armor
+        if (!keepArmor)
+        {
+            player.dropItem(EquipmentSlot.HEAD);
+            player.dropItem(EquipmentSlot.CHEST);
+            player.dropItem(EquipmentSlot.LEGS);
+            player.dropItem(EquipmentSlot.FEET);
+            player.dropItem(EquipmentSlot.OFF_HAND);
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Equipment is NOT being kept.");
+        }
+        else {
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Equipment is being kept.");
+        }
 
-        Iterator<ItemStack> iterator = event.getDrops().iterator();
-
-        while (iterator.hasNext()) {
-            ItemStack item = iterator.next();
-
-            if (item == null || item.getType() == Material.AIR) {
-                continue;
+        // Handle dropping the hotbar
+        if (!keepHotbar)
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                player.dropItem(i);
             }
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Hotbar is NOT being kept.");
+        }
+        else
+        {
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Hotbar is being kept.");
+        }
 
-            boolean isHotbar = isInHotbar(player, item);
-            boolean isArmor = isInArmorSlot(player, item);
-
-            Bukkit.getLogger().info("[KeepInventoryTweaks] Checking item: " + item.getType());
-            Bukkit.getLogger().info("[KeepInventoryTweaks] - Is Hotbar: " + isHotbar);
-            Bukkit.getLogger().info("[KeepInventoryTweaks] - Is Armor Slot: " + isArmor);
-
-            if ((keepHotbar && isHotbar) ||
-                    (keepArmor && isArmor) ||
-                    (keepInventory && !isHotbar && !isArmor)) {
-                iterator.remove();
-                Bukkit.getLogger().info("[KeepInventoryTweaks] -> Keeping item: " + item.getType());
-            } else {
-                Bukkit.getLogger().info("[KeepInventoryTweaks] -> Dropping item: " + item.getType());
+        // Handle dropping the regular inventory (not hotbar or equipment)
+        if (!keepInventory)
+        {
+            for (int i = 9; i < 36; i++)
+            {
+                player.dropItem(i);
             }
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Main inventory is NOT being kept.");
+        }
+        else
+        {
+            Bukkit.getLogger().info("[KeepInventoryTweaks] Main inventory is being kept.");
         }
 
         // Don't drop everything, only the things we manually decided to drop
         event.setKeepInventory(true);
-
-        if (!keepArmor)
-        {
-            player.dropItem(EquipmentSlot.HEAD);
-        }
-    }
-
-    private boolean isInHotbar(Player player, ItemStack item) {
-        for (int i = 0; i < 9; i++) {
-            if (item.equals(player.getInventory().getItem(i))) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isInArmorSlot(Player player, ItemStack item) {
-        return item.equals(player.getInventory().getItem(EquipmentSlot.HEAD)) ||
-                item.equals(player.getInventory().getItem(EquipmentSlot.CHEST)) ||
-                item.equals(player.getInventory().getItem(EquipmentSlot.LEGS)) ||
-                item.equals(player.getInventory().getItem(EquipmentSlot.FEET)) ||
-                item.equals(player.getInventory().getItem(EquipmentSlot.OFF_HAND));
     }
 }
