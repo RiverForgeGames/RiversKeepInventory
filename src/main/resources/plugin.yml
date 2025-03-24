@@ -1,0 +1,6 @@
+name: RiversKeepInventory
+version: '1.0-SNAPSHOT'
+main: me.river.riversKeepInventory.RiversKeepInventory
+api-version: '1.21'
+authors: [ River ]
+description: Just a test plugin while River is learning
